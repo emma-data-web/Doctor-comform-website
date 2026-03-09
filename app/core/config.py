@@ -1,4 +1,5 @@
-from pydantic import BaseSettings, EmailStr
+from pydantic_settings import BaseSettings
+from pydantic import EmailStr
 
 class Settings(BaseSettings):
     # Mail settings
@@ -12,6 +13,7 @@ class Settings(BaseSettings):
     USE_CREDENTIALS: bool = True
     VALIDATE_CERTS: bool = True
 
+    DATABASE_URL: str
     #stripe own
     STRIPE_SECRET_KEY: str
     STRIPE_WEBHOOK_SECRET: str
