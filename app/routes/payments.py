@@ -8,9 +8,7 @@ router = APIRouter()
 
 @router.post("/buy-ticket")
 def buy_ticket(request: BuyRequest, db: Session = Depends(get_db)):
-    """
-    Create a Stripe checkout session for tickets.
-    """
+    
     checkout_url = create_checkout_session(
         db=db,
         email=request.email,

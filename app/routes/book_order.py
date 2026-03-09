@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.post("/buy-book")
 def buy_book(request: BookPurchaseRequest, db: Session = Depends(get_db)):
-    # Create Stripe session
+
     session_url = create_book_payment_session(
         book_title=request.book_title,
         quantity=request.quantity,
@@ -22,5 +22,5 @@ def buy_book(request: BookPurchaseRequest, db: Session = Depends(get_db)):
         buyer_phone=request.buyer_phone
     )
 
-    #  Return session URL to frontend
+    
     return {"checkout_url": session_url}

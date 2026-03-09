@@ -11,8 +11,8 @@ class Payment(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     buyer_email = Column(String, nullable=False)
     stripe_session = Column(String, nullable=False)
-    type = Column(String, nullable=False)   #  either of ticket or book 
-    item_id = Column(String, nullable=False)    # ID of event or book
+    type = Column(String, nullable=False)   
+    item_id = Column(String, nullable=False)    
     quantity = Column(Integer, default=1)
     paid = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)

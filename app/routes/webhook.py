@@ -16,7 +16,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
 
-    # Use single secret
+    
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
@@ -26,7 +26,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     except Exception:
         return {"status": "error processing webhook"}
 
-    # Handle successful checkout payment
+    
     if event["type"] == "checkout.session.completed":
         session_data = event["data"]["object"]
         metadata = session_data.get("metadata", {})

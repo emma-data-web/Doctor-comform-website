@@ -10,7 +10,7 @@ class Ticket(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     buyer_email = Column(String, nullable=False)
-    payment_id = Column(String, nullable=False)  # link to Payment
-    qr_code = Column(String, nullable=True)      # path or base64 of QR
+    payment_id = Column(String, nullable=False)  
+    qr_code = Column(String, nullable=True)      
     used = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)

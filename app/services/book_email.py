@@ -1,5 +1,5 @@
 from fastapi_mail import FastMail, MessageSchema, MessageType
-
+from app.core.email import conf
 
 
 async def send_physical_book_email(
@@ -27,7 +27,7 @@ async def send_physical_book_email(
 
     <p>Your book will be shipped soon.</p>
 
-    <p>Thank you for your support ❤️</p>
+    <p>Thank you for your support </p>
     """
 
     message = MessageSchema(
