@@ -17,5 +17,5 @@ async def send_ticket_email(to_email: str, qr_base64: str):
     
     fm = FastMail(conf)
     
-    # Send email with QR code attachment
+    # Send email with QR code 
     await fm.send_message(message, files=[("ticket.png", qr_bytes)])

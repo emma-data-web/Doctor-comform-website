@@ -2,27 +2,25 @@ from pydantic_settings import BaseSettings
 from pydantic import EmailStr
 
 class Settings(BaseSettings):
-    # Mail settings
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
     MAIL_FROM: EmailStr
-    MAIL_PORT: int = 587
-    MAIL_SERVER: str = "smtp.gmail.com"
-    MAIL_TLS: bool = True
-    MAIL_SSL: bool = False
-    USE_CREDENTIALS: bool = True
-    VALIDATE_CERTS: bool = True
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_STARTTLS: bool
+    MAIL_SSL_TLS: bool
+    USE_CREDENTIALS: bool
+    VALIDATE_CERTS: bool
 
     DATABASE_URL: str
-    #stripe own
+
     STRIPE_SECRET_KEY: str
     STRIPE_WEBHOOK_SECRET: str
     STRIPE_SUCCESS_URL: str
     STRIPE_CANCEL_URL: str
 
     class Config:
-        env_file = ".env"
+        env_file = "dev.env"
         env_file_encoding = "utf-8"
-
 
 settings = Settings()

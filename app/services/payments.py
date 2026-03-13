@@ -6,7 +6,7 @@ from app.core.config import settings
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def create_checkout_session(db: Session, email: str, quantity: int, type_: str, item_id: str):
-    #  Creating  Stripe checkout session
+    
     session = stripe.checkout.Session.create(
         payment_method_types=["card"], 
         mode="payment",

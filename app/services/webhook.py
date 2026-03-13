@@ -4,13 +4,13 @@ from app.db.payments import mark_payment_paid
 from app.services.tickets import create_ticket_with_qr
 from app.core.config import settings
 
-# Use keys from config
+
 stripe.api_key = settings.STRIPE_SECRET_KEY
 endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
 async def handle_stripe_event(payload: bytes, sig_header: str, db):
 
-    #  Verify Stripe webhook signature
+    
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
     except stripe.error.SignatureVerificationError:
@@ -18,12 +18,12 @@ async def handle_stripe_event(payload: bytes, sig_header: str, db):
     except Exception:
         return {"status": "error processing webhook"}
 
-    #  Handle successful checkout payment
+    
     if event["type"] == "checkout.session.completed":
         session_data = event["data"]["object"]
         stripe_session_id = session_data["id"]
 
-        #  Mark payment as paid in DB
+        
         payment = mark_payment_paid(db, stripe_session_id)
 
         #  Generate QR tickets 
@@ -31,9 +31,9 @@ async def handle_stripe_event(payload: bytes, sig_header: str, db):
             for _ in range(payment.quantity):
                 ticket = create_ticket_with_qr(db, payment.buyer_email, payment.id)
                 await send_ticket_email(ticket.buyer_email, ticket.qr_code)
-                # send_ticket_email(ticket.buyer_email, ticket.qr_code)
+                
 
         return {"status": "success"}
 
-    #  Ignore other events for now
+    
     return {"status": "ignored event"}
