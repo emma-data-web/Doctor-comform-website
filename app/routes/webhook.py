@@ -40,7 +40,11 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             if payment:
                 for _ in range(payment.quantity):
                     ticket = create_ticket_with_qr(db, payment.buyer_email, payment.id)
-                    await send_ticket_email(ticket.buyer_email, ticket.qr_code)
+                    try: 
+                        await send_ticket_email(ticket.buyer_email, ticket.qr_code)
+                        print(f"Email sent to {ticket.buyer_email}")
+                    except Exception as e:
+                        print("EMAIL ERROR:", str(e))
 
         elif product_type == "book":
             book_payment = BookPayment(

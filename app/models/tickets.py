@@ -1,9 +1,9 @@
 from sqlalchemy import Column, String, Boolean, DateTime
-from sqlalchemy.ext.declarative import declarative_base
+from app.models.payments import Base
 from datetime import datetime
 import uuid
 
-Base = declarative_base()
+
 
 class Ticket(Base):
     __tablename__ = "tickets"

@@ -15,20 +15,22 @@ def create_checkout_session(db: Session, email: str, quantity: int, type_: str, 
                 "currency": "usd",
                 "product_data": {
                     "name": f"{type_.capitalize()} Purchase",
-                    "metadata": {
-                        "type": type_,
-                        "item_id": item_id
-                    }
                 },
-                "unit_amount": 5000  # $50,
+                "unit_amount": 5000,  # $50
             },
             "quantity": quantity
         }],
+        metadata={
+            "type": type_,        # <--- move metadata here
+            "item_id": item_id,
+            "quantity": quantity,
+            "buyer_email": email  # optional, makes webhook easier
+        },
         success_url=settings.STRIPE_SUCCESS_URL,
         cancel_url=settings.STRIPE_CANCEL_URL
     )
 
-    # 2 Save payment record in DB
+    # Save payment record in DB
     create_payment_record(db, email, session.id, type_, item_id, quantity)
 
     return session.url

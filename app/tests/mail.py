@@ -1,25 +1,7 @@
+import smtplib
 
-import asyncio
-from app.core.email import conf
-from fastapi_mail import FastMail, MessageSchema
-from app.core.config import settings
-
-async def test_ticket_email():
-   
-    message = MessageSchema(
-        subject="Test Ticket",
-        recipients=[settings.MAIL_FROM],  
-        body="worked!!.",
-        subtype="plain"
-    )
-
-
-    print(settings.MAIL_USERNAME)
-    print(settings.MAIL_SERVER)
-
-    fm = FastMail(conf)
-    await fm.send_message(message)
-    print(" email sent!")
-
-if __name__ == "__main__":
-    asyncio.run(test_ticket_email())
+server = smtplib.SMTP("smtp.gmail.com", 587, timeout=30)
+server.starttls()
+server.login("emmanuelnwankwo690@gmail.com", "ecrc czyz vtmx xcqm")
+print("Connected successfully")
+server.quit()

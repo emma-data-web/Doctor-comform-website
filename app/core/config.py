@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str
     STRIPE_SUCCESS_URL: str
     STRIPE_CANCEL_URL: str
+    STRIPE_PUBLISHABLE_KEY: str
 
     class Config:
         env_file = "dev.env"
