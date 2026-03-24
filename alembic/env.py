@@ -19,7 +19,8 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 
-from app.models.payments import Base  # your Base
+from app.models.payments import Base  
+from app.models.payments import BookPayment, Payment
 from app.models.tickets import Ticket
 target_metadata = Base.metadata
 
