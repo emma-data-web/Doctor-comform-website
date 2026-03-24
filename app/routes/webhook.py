@@ -8,6 +8,8 @@ from app.services.email import send_ticket_email
 from app.models.payments import BookPayment
 from app.services.book_email import send_physical_book_email
 from app.dependencies import get_db  
+from app.services.book_email import send_physical_book_owner_email
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -67,6 +69,9 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 book_title=book_payment.book_title,
                 quantity=book_payment.quantity
             )
+            owner_email = settings.OWNER_EMAIL
+            
+            await send_physical_book_owner_email(book_payment, owner_email)
 
         else:
             return {"status": "ignored product type"}

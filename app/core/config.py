@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from pydantic import EmailStr
+from pydantic import EmailStr, Field
 
 class Settings(BaseSettings):
     MAIL_USERNAME: str
@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     USE_CREDENTIALS: bool
     VALIDATE_CERTS: bool
 
+    OWNER_EMAIL: EmailStr  
+
     DATABASE_URL: str
 
     STRIPE_SECRET_KEY: str
@@ -20,8 +22,14 @@ class Settings(BaseSettings):
     STRIPE_CANCEL_URL: str
     STRIPE_PUBLISHABLE_KEY: str
 
+
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
 
 settings = Settings()
+
+
+if not settings.OWNER_EMAIL:
+    raise ValueError("OWNER_EMAIL is not in env, cant let that email out there")
