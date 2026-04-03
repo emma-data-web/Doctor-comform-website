@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app.routes import payments, webhook, book_order 
 
-app = FastAPI(title="Tickets & Books Payment System")
+app = FastAPI(title="Brunch and Pray")
 
 
 app.include_router(payments.router, prefix="/tickets")  

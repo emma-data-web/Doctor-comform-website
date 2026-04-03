@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 import stripe
 from app.core.config import settings
 from app.db.payments import mark_payment_paid
@@ -9,7 +10,6 @@ from app.models.payments import BookPayment
 from app.services.book_email import send_physical_book_email
 from app.dependencies import get_db  
 from app.services.book_email import send_physical_book_owner_email
-from app.core.config import settings
 
 router = APIRouter()
 
@@ -18,7 +18,6 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
 
-    
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
@@ -28,29 +27,49 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     except Exception:
         return {"status": "error processing webhook"}
 
-    
     if event["type"] == "checkout.session.completed":
         session_data = event["data"]["object"]
         metadata = session_data.get("metadata", {})
 
         product_type = metadata.get("type") or metadata.get("product_type")
 
+        
         if product_type == "ticket":
             stripe_session_id = session_data.get("id")
+
             payment = mark_payment_paid(db, stripe_session_id)
 
-            if payment:
-                for _ in range(payment.quantity):
-                    ticket = create_ticket_with_qr(db, payment.buyer_email, payment.id)
-                    try: 
-                        await send_ticket_email(ticket.buyer_email, ticket.qr_code)
-                        print(f"Email sent to {ticket.buyer_email}")
-                    except Exception as e:
-                        print("EMAIL ERROR:", str(e))
+            
+            if not payment or payment.status == "processed":
+                print(" Duplicate ticket webhook")
+                return {"status": "already processed"}
 
+            
+            payment.status = "processed"
+            db.commit()
+
+            for _ in range(payment.quantity):
+                ticket = create_ticket_with_qr(db, payment.buyer_email, payment.id)
+                try: 
+                    await send_ticket_email(ticket.buyer_email, ticket.qr_code)
+                    print(f"Email sent to {ticket.buyer_email}")
+                except Exception as e:
+                    print("EMAIL ERROR:", str(e))
+
+        
         elif product_type == "book":
+            stripe_session_id = session_data.get("id")
+
+            existing_payment = db.query(BookPayment).filter_by(
+                stripe_session_id=stripe_session_id
+            ).first()
+
+            if existing_payment:
+                print("Duplicate webhook")
+                return {"status": "already processed"}
+
             book_payment = BookPayment(
-                stripe_session_id=session_data.get("id"),
+                stripe_session_id=stripe_session_id,
                 book_title=metadata.get("book_title", ""),
                 quantity=int(metadata.get("quantity", 1)),
                 status="paid",
@@ -59,8 +78,14 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 buyer_address=metadata.get("buyer_address", ""),
                 buyer_phone=metadata.get("buyer_phone", "")
             )
-            db.add(book_payment)
-            db.commit()
+
+            try:
+                db.add(book_payment)
+                db.commit()
+            except IntegrityError:
+                db.rollback()
+                print(" Duplicate prevented for database")
+                return {"status": "duplicate ignored"}
 
             await send_physical_book_email(
                 buyer_name=book_payment.buyer_name,
@@ -69,6 +94,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 book_title=book_payment.book_title,
                 quantity=book_payment.quantity
             )
+
             owner_email = settings.OWNER_EMAIL
             
             await send_physical_book_owner_email(book_payment, owner_email)
