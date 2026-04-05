@@ -1,7 +1,8 @@
 from fastapi_mail import FastMail, MessageSchema, MessageType
 from app.core.email import conf
 import base64
-#import io
+import tempfile
+import os
 
 
 async def send_ticket_email(to_email: str, qr_base64: str):
@@ -13,23 +14,22 @@ async def send_ticket_email(to_email: str, qr_base64: str):
     <p>See you there! </p>
     """
 
-    
+    # Save QR to temp file
     qr_bytes = base64.b64decode(qr_base64)
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+    tmp.write(qr_bytes)
+    tmp.close()
 
     message = MessageSchema(
         subject="Your Ticket Is Ready!",
         recipients=[to_email],
         body=html_content,
         subtype=MessageType.html,
-        attachments=[
-            {
-                "file": qr_bytes,
-                "filename": "ticket_qr.png",
-                "mime_type": "image",
-                "mime_subtype": "png"
-            }
-        ]
+        attachments=[tmp.name]
     )
 
     fm = FastMail(conf)
     await fm.send_message(message)
+
+    # Clean up temp file
+    os.unlink(tmp.name)
