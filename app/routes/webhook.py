@@ -6,7 +6,7 @@ from app.core.config import settings
 from app.db.payments import mark_payment_paid
 from app.services.tickets import create_ticket_with_qr
 from app.services.email import send_ticket_email
-from app.models.payments import BookPayment
+from app.models.payments import BookPayment, Payment
 from app.services.book_email import send_physical_book_email
 from app.dependencies import get_db  
 from app.services.book_email import send_physical_book_owner_email
@@ -33,20 +33,21 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 
         product_type = metadata.get("type") or metadata.get("product_type")
 
-        
         if product_type == "ticket":
             stripe_session_id = session_data.get("id")
 
-            payment = mark_payment_paid(db, stripe_session_id)
-
             
-            if not payment or payment.status == "processed":
-                print(" Duplicate ticket webhook")
+            payment = db.query(Payment).filter(Payment.stripe_session == stripe_session_id).first()
+
+            if not payment:
+                return {"status": "payment not found"}
+
+            if payment.paid == True:
+                print("Duplicate ticket webhook")
                 return {"status": "already processed"}
 
             
-            payment.status = "processed"
-            db.commit()
+            mark_payment_paid(db, stripe_session_id)
 
             for _ in range(payment.quantity):
                 ticket = create_ticket_with_qr(db, payment.buyer_email, payment.id)
@@ -56,7 +57,6 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 except Exception as e:
                     print("EMAIL ERROR:", str(e))
 
-        
         elif product_type == "book":
             stripe_session_id = session_data.get("id")
 
@@ -84,7 +84,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 db.commit()
             except IntegrityError:
                 db.rollback()
-                print(" Duplicate prevented for database")
+                print("Duplicate prevented for database")
                 return {"status": "duplicate ignored"}
 
             await send_physical_book_email(
@@ -96,7 +96,6 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             )
 
             owner_email = settings.OWNER_EMAIL
-            
             await send_physical_book_owner_email(book_payment, owner_email)
 
         else:
