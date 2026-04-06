@@ -6,7 +6,7 @@ import uuid
 
 def generate_ticket_qr(ticket_id: str):
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
-    qr.add_data(f"https://doctor-comform-website.onrender.com/welcome/{ticket_id}")
+    qr.add_data(f"https://doctor-comform-website.onrender.com/tickets/welcome/{ticket_id}")
     qr.make(fit=True)
     img = qr.make_image(fill="black", back_color="white")
 
