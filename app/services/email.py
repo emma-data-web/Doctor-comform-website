@@ -8,7 +8,7 @@ import os
 async def send_ticket_email(to_email: str, qr_base64: str):
     
     html_content = """
-    <h2>Welcome to Brunch & Pray! 🎉</h2>
+    <h2>Welcome to Brunch & Pray! </h2>
     <p>Your ticket is confirmed. Please find your QR code attached.</p>
     <p>Present it at the event entrance to get in.</p>
     <p>See you there! </p>
