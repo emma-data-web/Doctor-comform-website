@@ -16,15 +16,15 @@ def create_checkout_session(db: Session, email: str, quantity: int, type_: str, 
                 "product_data": {
                     "name": f"{type_.capitalize()} Purchase",
                 },
-                "unit_amount": 5000,  # $50
+                "unit_amount": 3500,  # $50
             },
             "quantity": quantity
         }],
         metadata={
-            "type": type_,        # <--- move metadata here
+            "type": type_,        # metadata is  here
             "item_id": item_id,
             "quantity": quantity,
-            "buyer_email": email  # optional, makes webhook easier
+            "buyer_email": email  
         },
         success_url=settings.STRIPE_SUCCESS_URL,
         cancel_url=settings.STRIPE_CANCEL_URL
