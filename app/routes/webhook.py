@@ -15,6 +15,7 @@ router = APIRouter()
 
 @router.post("/stripe-webhook")
 async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
+    print("WEBHOOK HIT!")
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
 
