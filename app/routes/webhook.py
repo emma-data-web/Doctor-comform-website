@@ -58,8 +58,10 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                     print("EMAIL ERROR:", str(e))
 
         elif product_type == "book":
+            print("BOOK WEBHOOK HIT!")
             stripe_session_id = session_data.get("id")
-
+            print(f"Session ID: {stripe_session_id}")
+            print(f"Metadata: {metadata}")
             existing_payment = db.query(BookPayment).filter_by(
                 stripe_session_id=stripe_session_id
             ).first()
