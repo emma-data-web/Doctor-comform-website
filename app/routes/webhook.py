@@ -86,6 +86,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 db.rollback()
                 print("Duplicate prevented for database")
                 return {"status": "duplicate ignored"}
+            
             try:
                 await send_physical_book_email(
                     buyer_name=book_payment.buyer_name,
@@ -93,12 +94,14 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                     buyer_address=book_payment.buyer_address,
                     book_title=book_payment.book_title,
                     quantity=book_payment.quantity
-            )
+                )
+                print(f"Book email sent to {book_payment.buyer_email}")
 
                 owner_email = settings.OWNER_EMAIL
                 await send_physical_book_owner_email(book_payment, owner_email)
-            except Exception as e:
-                print("BOOK EMAIL ERROR:", str(e))
+                print(f"Owner email sent to {owner_email}")
+            except Exception as e:  
+                 print("BOOK EMAIL ERROR:", str(e))
 
         else:
             return {"status": "ignored product type"}
