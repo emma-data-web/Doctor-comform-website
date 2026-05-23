@@ -10,3 +10,4 @@ class BookPurchaseRequest(BaseModel):
     buyer_email: str
     buyer_address: str
     buyer_phone: str = None
+    price: float

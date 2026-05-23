@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import payments, webhook, book_order 
 
+
 app = FastAPI(title="Brunch and Pray")
 
 

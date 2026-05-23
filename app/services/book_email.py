@@ -1,6 +1,6 @@
 from fastapi_mail import FastMail, MessageSchema, MessageType
 from app.core.email import conf
-from app.schemas.book_schema import BookPurchaseRequest
+from app.models.payments import BookPayment
 
 
 async def send_physical_book_email(
@@ -45,7 +45,7 @@ async def send_physical_book_email(
 
 
 
-async def send_physical_book_owner_email(book_request: BookPurchaseRequest, owner_email: str):
+async def send_physical_book_owner_email(book_request: BookPayment, owner_email: str):
    
     body = f"""
     <h2>New Book Order Received!</h2>

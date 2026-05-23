@@ -33,3 +33,10 @@ settings = Settings()
 
 if not settings.OWNER_EMAIL:
     raise ValueError("OWNER_EMAIL is not in env, cant let that email out there")
+
+
+
+
+
+
+

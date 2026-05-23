@@ -19,7 +19,8 @@ def buy_book(request: BookPurchaseRequest, db: Session = Depends(get_db)):
         buyer_name=request.buyer_name,
         buyer_email=request.buyer_email,
         buyer_address=request.buyer_address,
-        buyer_phone=request.buyer_phone
+        buyer_phone=request.buyer_phone,
+        price=request.price
     )
 
     
