@@ -1,4 +1,4 @@
-# Book & Event Ticket Platform
+# Book & Event Ticket system
 
 A FastAPI backend for buying books and event tickets online.
 
